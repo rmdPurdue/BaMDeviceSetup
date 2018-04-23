@@ -2,14 +2,13 @@
 import com.illposed.osc.OSCMessage;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 /**
  * @author Rich Dionne
@@ -19,16 +18,43 @@ import javafx.scene.text.Font;
  */
 public class View {
     public Scene scene;
+    public ComboBox networkSelect = new ComboBox<>();
+    Button findDevicesButton;
 
     public View() {
+        VBox header = makeHeader();
+        VBox inputFields = makeInputFields();
+        VBox networkFields = makeNetworkFields();
+
+        BorderPane window = new BorderPane();
+        window.setTop(header);
+        window.setCenter(inputFields);
+        window.setLeft(networkFields);
+
+        scene = new Scene(window);
+    }
+
+    private VBox makeHeader() {
         Label title = new Label("Bodies as Music Device Setup");
-        title.setFont(new Font("Arial", 24));
+        title.setFont(Font.font("Arial", 24));
         title.setPadding(new Insets(5, 10, 5, 20));
 
         VBox header = new VBox();
         header.setSpacing(10);
         header.setPadding(new Insets(5, 0, 20, 0));
         header.getChildren().addAll(title);
+
+        return header;
+    }
+
+    private VBox makeInputFields() {
+        Label addressEntryAreaLabel = new Label("Device ID and Messaging Setup");
+        addressEntryAreaLabel.setFont(Font.font("Arial", FontWeight.BOLD,16));
+        addressEntryAreaLabel.setPadding(new Insets(0,0,10,0));
+
+        Label calibrationEntryAreaLabel = new Label("Device Input Calibration");
+        calibrationEntryAreaLabel.setFont(Font.font("Arial", FontWeight.BOLD,16));
+        calibrationEntryAreaLabel.setPadding(new Insets(0,0,10,0));
 
         TextField idEntry = new TextField();
         Label idLabel = new Label("Device ID:");
@@ -343,7 +369,7 @@ public class View {
         Button a0CalibrateButton = new Button("Calibrate");
         a0CalibrateButton.setOnAction(event -> {
             OSCMessage message = new OSCMessage();
-            message.setAddress("/torso1/setup");
+            message.setAddress("/torso1/setup/analog0");
             int[] args = {
                     Integer.parseInt(analog0LowEntry.getText()),
                     Integer.parseInt(analog0HighEntry.getText()),
@@ -351,6 +377,7 @@ public class View {
             message.addArgument(args);
 
         });
+
         Button a1CalibrateButton = new Button("Calibrate");
         Button a2CalibrateButton = new Button("Calibrate");
         Button a3CalibrateButton = new Button("Calibrate");
@@ -361,94 +388,125 @@ public class View {
         GridPane addressGrid = new GridPane();
         addressGrid.setHgap(10);
         addressGrid.setVgap(5);
-        addressGrid.add(idLabel, 0,0);
-        addressGrid.add(idEntry,1,0);
-        addressGrid.add(idError,0,1,2,1);
+        addressGrid.add(addressEntryAreaLabel,0,0,2,1);
+        addressGrid.add(idLabel, 0,1);
+        addressGrid.add(idEntry,1,1);
+        addressGrid.add(idError,0,2,2,1);
 
-        addressGrid.add(ipLabel,0,2);
-        addressGrid.add(outgoingIpEntry,1,2);
-        addressGrid.add(ipError,0,3,2,1);
-        addressGrid.add(saveAddressButton,3,2);
+        addressGrid.add(ipLabel,0,3);
+        addressGrid.add(outgoingIpEntry,1,3);
+        addressGrid.add(ipError,0,4,2,1);
+        addressGrid.add(saveAddressButton,3,3);
+
+        Separator horizontalSeparator = new Separator();
+        horizontalSeparator.setPadding(new Insets(10,10,10,10));
 
         GridPane inputsGrid = new GridPane();
         inputsGrid.setHgap(10);
         inputsGrid.setVgap(5);
-        inputsGrid.add(a0LowLabel, 0,0);
-        inputsGrid.add(analog0LowEntry,1,0);
-        inputsGrid.add(a0LowError,0,1,2,1);
-        inputsGrid.add(a0HighLabel, 2,0);
-        inputsGrid.add(analog0HighEntry,3,0);
-        inputsGrid.add(a0HighError,2,1,2,1);
-        inputsGrid.add(a0WeightLabel,4,0);
-        inputsGrid.add(analog0WeightEntry,5,0);
-        inputsGrid.add(a0WeightError,4,1,2,1);
-        inputsGrid.add(a0CalibrateButton,6,0);
+        inputsGrid.add(calibrationEntryAreaLabel,0,0,2,1);
+        inputsGrid.add(a0LowLabel, 0,1);
+        inputsGrid.add(analog0LowEntry,1,1);
+        inputsGrid.add(a0LowError,0,2,2,1);
+        inputsGrid.add(a0HighLabel, 2,1);
+        inputsGrid.add(analog0HighEntry,3,1);
+        inputsGrid.add(a0HighError,2,2,2,1);
+        inputsGrid.add(a0WeightLabel,4,1);
+        inputsGrid.add(analog0WeightEntry,5,1);
+        inputsGrid.add(a0WeightError,4,2,2,1);
+        inputsGrid.add(a0CalibrateButton,6,1);
 
-        inputsGrid.add(a1LowLabel,0,2);
-        inputsGrid.add(analog1LowEntry,1,2);
-        inputsGrid.add(a1LowError,0,3,2,1);
-        inputsGrid.add(a1HighLabel, 2,2);
-        inputsGrid.add(analog1HighEntry,3,2);
-        inputsGrid.add(a1HighError,2,3,2,1);
-        inputsGrid.add(a1WeightLabel,4,2);
-        inputsGrid.add(analog1WeightEntry,5,2);
-        inputsGrid.add(a1WeightError,4,3,2,1);
-        inputsGrid.add(a1CalibrateButton,6,2);
+        inputsGrid.add(a1LowLabel,0,3);
+        inputsGrid.add(analog1LowEntry,1,3);
+        inputsGrid.add(a1LowError,0,4,2,1);
+        inputsGrid.add(a1HighLabel, 2,3);
+        inputsGrid.add(analog1HighEntry,3,3);
+        inputsGrid.add(a1HighError,2,4,2,1);
+        inputsGrid.add(a1WeightLabel,4,3);
+        inputsGrid.add(analog1WeightEntry,5,3);
+        inputsGrid.add(a1WeightError,4,4,2,1);
+        inputsGrid.add(a1CalibrateButton,6,3);
 
-        inputsGrid.add(a2LowLabel,0,4);
-        inputsGrid.add(analog2LowEntry,1,4);
-        inputsGrid.add(a2LowError,0,5,2,1);
-        inputsGrid.add(a2HighLabel, 2,4);
-        inputsGrid.add(analog2HighEntry,3,4);
-        inputsGrid.add(a2HighError,2,5,2,1);
-        inputsGrid.add(a2WeightLabel,4,4);
-        inputsGrid.add(analog2WeightEntry,5,4);
-        inputsGrid.add(a2WeightError,4,5,2,1);
-        inputsGrid.add(a2CalibrateButton,6,4);
+        inputsGrid.add(a2LowLabel,0,5);
+        inputsGrid.add(analog2LowEntry,1,5);
+        inputsGrid.add(a2LowError,0,6,2,1);
+        inputsGrid.add(a2HighLabel, 2,5);
+        inputsGrid.add(analog2HighEntry,3,5);
+        inputsGrid.add(a2HighError,2,6,2,1);
+        inputsGrid.add(a2WeightLabel,4,5);
+        inputsGrid.add(analog2WeightEntry,5,5);
+        inputsGrid.add(a2WeightError,4,6,2,1);
+        inputsGrid.add(a2CalibrateButton,6,5);
 
-        inputsGrid.add(a3LowLabel,0,6);
-        inputsGrid.add(analog3LowEntry,1,6);
-        inputsGrid.add(a3LowError,0,7,2,1);
-        inputsGrid.add(a3HighLabel, 2,6);
-        inputsGrid.add(analog3HighEntry,3,6);
-        inputsGrid.add(a3HighError,2,7,2,1);
-        inputsGrid.add(a3WeightLabel,4,6);
-        inputsGrid.add(analog3WeightEntry,5,6);
-        inputsGrid.add(a3WeightError,4,7,2,1);
-        inputsGrid.add(a3CalibrateButton,6,6);
+        inputsGrid.add(a3LowLabel,0,7);
+        inputsGrid.add(analog3LowEntry,1,7);
+        inputsGrid.add(a3LowError,0,8,2,1);
+        inputsGrid.add(a3HighLabel, 2,7);
+        inputsGrid.add(analog3HighEntry,3,7);
+        inputsGrid.add(a3HighError,2,8,2,1);
+        inputsGrid.add(a3WeightLabel,4,7);
+        inputsGrid.add(analog3WeightEntry,5,7);
+        inputsGrid.add(a3WeightError,4,8,2,1);
+        inputsGrid.add(a3CalibrateButton,6,7);
 
-        inputsGrid.add(a4LowLabel,0,8);
-        inputsGrid.add(analog4LowEntry,1,8);
-        inputsGrid.add(a4LowError,0,9,2,1);
-        inputsGrid.add(a4HighLabel, 2,8);
-        inputsGrid.add(analog4HighEntry,3,8);
-        inputsGrid.add(a4HighError,2,9,2,1);
-        inputsGrid.add(a4WeightLabel,4,8);
-        inputsGrid.add(analog4WeightEntry,5,8);
-        inputsGrid.add(a4WeightError,4,9,2,1);
-        inputsGrid.add(a4CalibrateButton,6,8);
+        inputsGrid.add(a4LowLabel,0,9);
+        inputsGrid.add(analog4LowEntry,1,9);
+        inputsGrid.add(a4LowError,0,10,2,1);
+        inputsGrid.add(a4HighLabel, 2,9);
+        inputsGrid.add(analog4HighEntry,3,9);
+        inputsGrid.add(a4HighError,2,10,2,1);
+        inputsGrid.add(a4WeightLabel,4,9);
+        inputsGrid.add(analog4WeightEntry,5,9);
+        inputsGrid.add(a4WeightError,4,10,2,1);
+        inputsGrid.add(a4CalibrateButton,6,9);
 
-        inputsGrid.add(a5LowLabel,0,10);
-        inputsGrid.add(analog5LowEntry,1,10);
-        inputsGrid.add(a5LowError,0,11,2,1);
-        inputsGrid.add(a5HighLabel, 2,10);
-        inputsGrid.add(analog5HighEntry,3,10);
-        inputsGrid.add(a5HighError,2,11,2,1);
-        inputsGrid.add(a5WeightLabel,4,10);
-        inputsGrid.add(analog5WeightEntry,5,10);
-        inputsGrid.add(a5WeightError,4,11,2,1);
-        inputsGrid.add(a5CalibrateButton,6,10);
+        inputsGrid.add(a5LowLabel,0,11);
+        inputsGrid.add(analog5LowEntry,1,11);
+        inputsGrid.add(a5LowError,0,12,2,1);
+        inputsGrid.add(a5HighLabel, 2,11);
+        inputsGrid.add(analog5HighEntry,3,11);
+        inputsGrid.add(a5HighError,2,12,2,1);
+        inputsGrid.add(a5WeightLabel,4,11);
+        inputsGrid.add(analog5WeightEntry,5,11);
+        inputsGrid.add(a5WeightError,4,12,2,1);
+        inputsGrid.add(a5CalibrateButton,6,11);
 
-        inputsGrid.add(saveCalibrationButton,5,12,2,1);
+        inputsGrid.add(saveCalibrationButton,5,13,2,1);
 
         VBox inputFields = new VBox();
-        inputFields.setPadding(new Insets(10,10,10,10));
-        inputFields.getChildren().addAll(addressGrid, inputsGrid);
+        inputFields.setMinWidth(700);
+        inputFields.setPadding(new Insets(10,20,10,20));
+        inputFields.getChildren().addAll(addressGrid, horizontalSeparator, inputsGrid);
 
-        BorderPane window = new BorderPane();
-        window.setTop(header);
-        window.setCenter(inputFields);
+        return inputFields;
+    }
 
-        scene = new Scene(window);
+    private VBox makeNetworkFields() {
+        Label networkAreaLabel = new Label("Network Setup");
+        networkAreaLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        networkAreaLabel.setPadding(new Insets(0,0,10,0));
+
+        Label networkSelectLabel = new Label("Select the BaM network:");
+
+        networkSelect.setMaxWidth(250);
+        networkSelect.setPrefWidth(250);
+
+        GridPane networksGrid = new GridPane();
+        networksGrid.setHgap(10);
+        networksGrid.setVgap(5);
+        networksGrid.add(networkAreaLabel,0,0, 2,1);
+        networksGrid.add(networkSelectLabel, 0, 1);
+        networksGrid.add(networkSelect,0,2);
+
+        Separator horizontalSeparator = new Separator();
+        horizontalSeparator.setPadding(new Insets(10,10,10,10));
+
+        findDevicesButton = new Button("Find Devices");
+
+        VBox networkFields = new VBox();
+        networkFields.setPadding(new Insets(10,20,10,20));
+        networkFields.getChildren().addAll(networksGrid, horizontalSeparator, findDevicesButton);
+
+        return networkFields;
     }
 }
