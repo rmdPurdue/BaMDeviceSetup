@@ -50,10 +50,11 @@ public class Network {
         if(this.name.contains("eth")) {
             chooserDisplay = "Ethernet (" + localAddress.toString() + ")";
         }
-        if (this.name.contains("wlan")) {
+        if (this.name.contains("wlan") || this.name.contains("en")) {
             chooserDisplay = "Wireless (" + localAddress.toString() + ")";
+        } else {
+            chooserDisplay = this.name + " (" + localAddress.toString() + ")";
         }
-//        chooserDisplay = this.name + " (" + localAddress.toString() + ")";
         return chooserDisplay;
     }
 }

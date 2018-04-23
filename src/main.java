@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.ProgressBar;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -26,6 +27,7 @@ public class main extends Application {
     private ArrayList<Network> networks = new ArrayList<>();
     private ArrayList<Device> devices = new ArrayList<>();
     private Task<InetAddress> getBroadcastAddress;
+
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -167,8 +169,11 @@ public class main extends Application {
 
             while(iterAddress.hasMoreElements()) {
                 address = iterAddress.nextElement();
+                System.out.println(address.toString());
 
                 if (address.isSiteLocalAddress()) {
+                    System.out.println("Is local.");
+                    System.out.println(network.getDisplayName());
                     networks.add(new Network(network.getName(), InetAddress.getByAddress(address.getAddress()), network));
 //                    localIp = address.getHostAddress();
 //                    localIpBytes = address.getAddress();
@@ -255,16 +260,18 @@ public class main extends Application {
         final ObservableList<String> networkNames = FXCollections.observableArrayList();
         final InetAddress[] broadcastAddress = new InetAddress[1];
         for(Network net : networks) {
-            networkNames.add(net.getChooserDisplay());
+            networkNames.add(net.getLocalAddress().toString());
         }
         view.networkSelect.setItems(networkNames);
 
         view.findDevicesButton.setOnAction(e -> {
+            view.searchingLabel.setVisible(true);
+            view.progressBar.setVisible(true);
             System.out.println("Find Devices!");
             Network selectedNetwork = new Network();
             if(view.networkSelect.getSelectionModel().getSelectedItem() != null) {
                 for (Network net : networks) {
-                    if (net.getChooserDisplay().equals(view.networkSelect.getSelectionModel().getSelectedItem())) {
+                    if (net.getLocalAddress().toString().equals(view.networkSelect.getSelectionModel().getSelectedItem())) {
                         selectedNetwork = net;
                     }
                 }
@@ -290,19 +297,28 @@ public class main extends Application {
                     for(byte b : finalSelectedNetwork.getLocalAddress().getAddress()) {
                         areYouThere.addArgument((int)b);
                     }
-                    int timeout=1000;
+
+                    int timeout=250;
                     for (int i=1;i<255;i++){
-                        String host="10.101.1" + "." + i;
+                        byte[] localHost = finalSelectedNetwork.getLocalAddress().getAddress();
+                        String host=localHost[0] + "." + localHost[1] + "." + localHost[2] + "." + i;
                         if (InetAddress.getByName(host).isReachable(timeout)){
                             System.out.println(host + " is reachable");
+                        } else {
+                            System.out.println(host + " is unreachable");
                         }
+                        updateProgress(i, 254);
+                        updateMessage(String.valueOf(100*i/254) + "% complete");
                     }
+                    System.out.println("done.");
+
+                    /*
                     bundle.addPacket(areYouThere);
-                    OSCPortOut sender = new OSCPortOut(InetAddress.getByName("255.255.255.255"), 9000);
+                    OSCPortOut sender = new OSCPortOut(InetAddress.getByName("10.101.1.255"), 9000);
                     sender.send(bundle);
                     sender.close();
                     System.out.println("Sent.");
-
+*/
                     receiver = new OSCPortIn(8000);
 
                     OSCListener listener = (time, message) -> {
@@ -321,6 +337,9 @@ public class main extends Application {
                     return null;
                 }
             };
+
+            view.progressBar.progressProperty().bind(getNetworkDevices.progressProperty());
+            view.progressLabel.textProperty().bind(getNetworkDevices.messageProperty());
 
             new Thread(getNetworkDevices).start();
             System.out.println();

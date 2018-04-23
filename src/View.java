@@ -19,6 +19,9 @@ import javafx.scene.text.FontWeight;
 public class View {
     public Scene scene;
     public ComboBox networkSelect = new ComboBox<>();
+    public ProgressBar progressBar;
+    public Label searchingLabel;
+    public Label progressLabel;
     Button findDevicesButton;
 
     public View() {
@@ -482,6 +485,15 @@ public class View {
     }
 
     private VBox makeNetworkFields() {
+        progressBar = new ProgressBar();
+        progressBar.setProgress(0);
+        progressBar.setVisible(false);
+
+        searchingLabel = new Label("Searching for devices.");
+        searchingLabel.setVisible(false);
+
+        progressLabel = new Label();
+
         Label networkAreaLabel = new Label("Network Setup");
         networkAreaLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
         networkAreaLabel.setPadding(new Insets(0,0,10,0));
@@ -503,9 +515,17 @@ public class View {
 
         findDevicesButton = new Button("Find Devices");
 
+        GridPane devicesGrid = new GridPane();
+        devicesGrid.setHgap(10);
+        devicesGrid.setVgap(5);
+        devicesGrid.add(findDevicesButton, 0,0);
+        devicesGrid.add(searchingLabel,1,0);
+        devicesGrid.add(progressBar,0,1);
+        devicesGrid.add(progressLabel,1,1);
+
         VBox networkFields = new VBox();
         networkFields.setPadding(new Insets(10,20,10,20));
-        networkFields.getChildren().addAll(networksGrid, horizontalSeparator, findDevicesButton);
+        networkFields.getChildren().addAll(networksGrid, horizontalSeparator, devicesGrid);
 
         return networkFields;
     }
