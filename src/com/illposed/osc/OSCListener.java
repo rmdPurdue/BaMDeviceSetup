@@ -8,6 +8,7 @@
 
 package com.illposed.osc;
 
+import java.net.UnknownHostException;
 import java.util.Date;
 
 /**
@@ -24,5 +25,5 @@ public interface OSCListener {
 	 *   <code>null</code> means: process immediately
 	 * @param message  The message to process.
 	 */
-	void acceptMessage(Date time, OSCMessage message);
+	void acceptMessage(Date time, OSCMessage message) throws UnknownHostException;
 }

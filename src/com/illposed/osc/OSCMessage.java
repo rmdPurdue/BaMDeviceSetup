@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  *
  * @author Chandrasekhar Ramakrishnan
  */
-public class OSCMessage extends AbstractOSCPacket {
+public class OSCMessage extends AbstractOSCPacket implements AddressSelector {
 
 	/**
 	 * Java regular expression pattern matching a single invalid character.
@@ -162,5 +162,10 @@ public class OSCMessage extends AbstractOSCPacket {
 				&& address.charAt(0) == '/'
 				&& !address.contains("//")
 				&& !ILLEGAL_ADDRESS_CHAR.matcher(address).find();
+	}
+
+	@Override
+	public boolean matches(String messageAddress) {
+		return address.equals(messageAddress);
 	}
 }
