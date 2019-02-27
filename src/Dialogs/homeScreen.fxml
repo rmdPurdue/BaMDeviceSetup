@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<SplitPane dividerPositions="0.2867332382310984" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="493.0" prefWidth="703.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Dialogs.HomeScreenController">
+  <items>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+         <children>
+            <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="78.0" text="SCAN" />
+            <Button layoutX="100.0" layoutY="14.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="78.0" text="STOP" />
+            <ListView layoutX="14.0" layoutY="99.0" prefHeight="371.0" prefWidth="167.0" />
+            <ProgressBar layoutX="14.0" layoutY="68.0" prefHeight="20.0" prefWidth="167.0" progress="0.0" />
+         </children></AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+         <children>
+            <Label layoutX="14.0" layoutY="24.0" prefHeight="24.0" prefWidth="50.0" text="Name:" />
+            <Label layoutX="15.0" layoutY="98.0" prefHeight="24.0" prefWidth="97.0" text="MAC Address:" />
+            <Label layoutX="14.0" layoutY="131.0" prefHeight="24.0" prefWidth="106.0" text="Hub IP Address:" />
+            <Label layoutX="15.0" layoutY="63.0" prefHeight="24.0" prefWidth="41.0" text="Port:" />
+            <TableView fx:id="inputSettingsTableView" editable="true" layoutX="10.0" layoutY="173.0" prefHeight="250.0" prefWidth="474.0">
+              <columns>
+                <TableColumn fx:id="inputNumberColumn" prefWidth="75.0" text="Input" />
+                <TableColumn fx:id="minValueColumn" prefWidth="60.0" text="Min" />
+                  <TableColumn fx:id="maxValueColumn" prefWidth="60.0" text="Max" />
+                  <TableColumn fx:id="calibrateColumn" prefWidth="175.0" text="Calibrate" />
+                  <TableColumn fx:id="filterWeightColumn" prefWidth="105.0" text="Filter Weight" />
+              </columns>
+            </TableView>
+            <TextField fx:id="deviceNameTextField" layoutX="57.0" layoutY="23.0" prefHeight="27.0" prefWidth="160.0" />
+            <TextField fx:id="portNumberTextField" layoutX="50.0" layoutY="62.0" prefHeight="27.0" prefWidth="78.0" />
+            <TextField fx:id="hubIPAddressTextField" layoutX="120.0" layoutY="130.0" />
+            <Label layoutX="112.0" layoutY="102.0" text="aa-bb-cc-dd-ee-ff" />
+            <Button fx:id="saveButton" layoutX="255.0" layoutY="446.0" mnemonicParsing="false" text="Save Configuration" />
+            <Button fx:id="cancelButton" layoutX="405.0" layoutY="446.0" mnemonicParsing="false" text="Cancel" />
+            <Button fx:id="editNameButton" layoutX="228.0" layoutY="23.0" mnemonicParsing="false" text="Edit" />
+            <Button fx:id="acceptNameButton" layoutX="276.0" layoutY="23.0" mnemonicParsing="false" text="Accept" />
+            <Button fx:id="editPortButton" layoutX="137.0" layoutY="62.0" mnemonicParsing="false" text="Edit" />
+            <Button fx:id="acceptPortButton" layoutX="185.0" layoutY="62.0" mnemonicParsing="false" text="Accept" />
+            <Button fx:id="editIPAddressButton" layoutX="295.0" layoutY="130.0" mnemonicParsing="false" text="Edit" />
+            <Button fx:id="acceptIPAddressButton" layoutX="343.0" layoutY="130.0" mnemonicParsing="false" text="Accept" />
+         </children></AnchorPane>
+  </items>
+</SplitPane>
