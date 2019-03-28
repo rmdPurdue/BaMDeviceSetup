@@ -1,5 +1,6 @@
 package Dialogs;
 
+import MVC.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -13,6 +14,7 @@ import util.AnalogInput;
 import util.DeviceToCalibrate;
 import util.RemoteDevice;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.InetAddress;
 import java.net.URL;
@@ -27,6 +29,7 @@ import static util.OSCCommandEnumerations.MINIMUM;
  */
 public class HomeScreenController {
     private Stage stage;
+    private Model model;
     private RemoteDevice device = new RemoteDevice();
 
     @FXML private TextField deviceNameTextField;
@@ -50,6 +53,20 @@ public class HomeScreenController {
 
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
+    @FXML public Button beginScanButton;
+    @FXML public Button cancelScanButton;
+
+    @FXML private ProgressBar scanProgress;
+    private float progress;
+
+    private boolean startScanning;
+    private boolean closeScanWindow;
+
+    private PropertyChangeSupport scanControllerPropertyChangeSupport = new PropertyChangeSupport(this);
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        scanControllerPropertyChangeSupport.addPropertyChangeListener(listener);
+    }
 
     public void setDevice(RemoteDevice device) {
         this.device = device;
@@ -72,6 +89,10 @@ public class HomeScreenController {
         stage.close();
     }
 
+    public void setModel(Model model) {
+        this.model = model;
+    }
+
     public void updateDeviceDetailsDisplay() {
         inputSettingsTableView.getItems().clear();
         inputSettingsTableView.getItems().setAll(device.getAnalogInputs());
@@ -81,6 +102,22 @@ public class HomeScreenController {
     private PropertyChangeSupport homeScreenControllerPropertyChangeSupport = new PropertyChangeSupport(this);
 
     public void initialize(URL location, ResourceBundle resources) {
+        startScanning = false;
+        closeScanWindow = false;
+        progress = 0;
+
+        beginScanButton.setOnAction(event -> {
+            startScanning = true;
+            scanControllerPropertyChangeSupport.firePropertyChange("startScanning", !startScanning, startScanning);
+            startScanning = false;
+        });
+
+        cancelScanButton.setOnAction(event -> {
+            closeScanWindow = true;
+            scanControllerPropertyChangeSupport.firePropertyChange("closeScanWindow", !closeScanWindow, closeScanWindow);
+            closeScanWindow = false;
+        });
+
         inputSettingsTableView.setEditable(true);
 
         deviceNameTextField.setDisable(true);
@@ -196,5 +233,9 @@ public class HomeScreenController {
         cancelButton.setOnAction(event -> {
             homeScreenControllerPropertyChangeSupport.firePropertyChange("closeDetailsWindow", false, true);
         });
+    }
+
+    public ProgressBar getProgressBar() {
+        return this.scanProgress;
     }
 }

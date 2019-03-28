@@ -1,5 +1,6 @@
 import Dialogs.CalibrationPromptController;
 import Dialogs.DeviceDialogController;
+import Dialogs.HomeScreenController;
 import Dialogs.ScanNetworkController;
 import MVC.MainWindowController;
 import MVC.Model;
@@ -31,12 +32,14 @@ public class main extends Application implements PropertyChangeListener {
     private MainWindowController mainWindowController;
     private DeviceDialogController deviceDialogController;
     private ScanNetworkController scanNetworkController;
+    private HomeScreenController homeScreenController; //TODO
     private CalibrationPromptController calibrationPromptController;
     private BackgroundTaskController backgroundTaskController = new BackgroundTaskController();
 
     private Stage scanDialogStage = new Stage();
     private Stage deviceDialogStage = new Stage();
     private Stage calibrationModalStage = new Stage();
+    private Stage homeStage = new Stage(); //TODO
 
     private ExecutorService executor;
     private DiscoveryQueryListener discoveryQueryListener;
@@ -81,6 +84,18 @@ public class main extends Application implements PropertyChangeListener {
         scanDialogStage.initModality(Modality.APPLICATION_MODAL);
         scanDialogStage.setTitle("Scan Network");
         scanDialogStage.setScene(scanDialogScene);
+
+        /*
+           Set up home screen mainWindowController and scene.
+         */
+        //TODO: this whole section
+        FXMLLoader homeFXMLLoader = new FXMLLoader(getClass().getResource("/Dialogs/homeScreen.fxml"));
+        Parent homeModal = homeFXMLLoader.load();
+        homeScreenController = homeFXMLLoader.getController();
+        Scene homeScreenScene = new Scene(homeModal, 500, 700);
+        homeStage.initModality(Modality.APPLICATION_MODAL);
+        homeStage.setTitle("Home Screen");
+        homeStage.setScene(homeScreenScene);
 
         /*
             Set up calibration prompt controllers and scene.
@@ -132,7 +147,8 @@ public class main extends Application implements PropertyChangeListener {
 
         mainWindowController.setModel(model);
         scanNetworkController.setModel(model);
-        deviceDialogController.setModel(model);
+        //deviceDialogController.setModel(model);
+        homeScreenController.setModel(model); //TODO: fix this
         backgroundTaskController.setModel(model);
         backgroundTaskController.setControllers(scanNetworkController, deviceDialogController, calibrationPromptController);
 
@@ -140,8 +156,9 @@ public class main extends Application implements PropertyChangeListener {
             Connect controllers to their stages.
          */
 
-        deviceDialogController.setStage(deviceDialogStage);
+        //deviceDialogController.setStage(deviceDialogStage);
         backgroundTaskController.setStages(scanDialogStage, deviceDialogStage, calibrationModalStage);
+        homeScreenController.setStage(homeStage);
 
         /*
             Add property change listeners for talk back from controllers and discovery query.
@@ -150,15 +167,18 @@ public class main extends Application implements PropertyChangeListener {
         mainWindowController.addPropertyChangeListener(backgroundTaskController);
         scanNetworkController.addPropertyChangeListener(this);
         scanNetworkController.addPropertyChangeListener(backgroundTaskController);
+        homeScreenController.addPropertyChangeListener(this); //TODO: fix this
+        homeScreenController.addPropertyChangeListener(backgroundTaskController); //TODO: fix this
         deviceDiscoveryQuery.addPropertyChangeListener(this);
-        deviceDialogController.addPropertyChangeListener(this);
-        deviceDialogController.addPropertyChangeListener(backgroundTaskController);
+//        deviceDialogController.addPropertyChangeListener(this);
+//        deviceDialogController.addPropertyChangeListener(backgroundTaskController);
         model.addPropertyChangeListener(backgroundTaskController);
 
         /*
             Bind scan network dialog box progress bar to query timeout progress.
          */
         scanNetworkController.getProgressBar().progressProperty().bind(deviceDiscoveryQuery.getTimeRemainingInSeconds().divide(10));
+        homeScreenController.getProgressBar().progressProperty().bind(deviceDiscoveryQuery.getTimeRemainingInSeconds().divide(10)); //TODO: make sure this is ok
         calibrationPromptController.timer.bind(countdownTimer.getTimeRemainingInSeconds());
 
 
