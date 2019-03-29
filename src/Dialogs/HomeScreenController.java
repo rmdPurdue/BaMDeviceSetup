@@ -11,11 +11,14 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
 import util.AnalogInput;
+import util.DeviceList;
 import util.DeviceToCalibrate;
 import util.RemoteDevice;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -31,6 +34,11 @@ public class HomeScreenController {
     private Stage stage;
     private Model model;
     private RemoteDevice device = new RemoteDevice();
+    private RemoteDevice selectedDevice;
+    private DeviceList deviceList = new DeviceList();
+
+    @FXML private TableView<RemoteDevice> deviceTableView;
+    @FXML private TableColumn<RemoteDevice, String> deviceNameColumn;
 
     @FXML private TextField deviceNameTextField;
     @FXML private TextField portNumberTextField;
@@ -62,10 +70,10 @@ public class HomeScreenController {
     private boolean startScanning;
     private boolean closeScanWindow;
 
-    private PropertyChangeSupport scanControllerPropertyChangeSupport = new PropertyChangeSupport(this);
+    private PropertyChangeSupport controllerPropertyChangeSupport = new PropertyChangeSupport(this);
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        scanControllerPropertyChangeSupport.addPropertyChangeListener(listener);
+        controllerPropertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     public void setDevice(RemoteDevice device) {
@@ -79,14 +87,6 @@ public class HomeScreenController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
-    }
-
-    public void showStage() {
-        stage.showAndWait();
-    }
-
-    public void closeStage() {
-        stage.close();
     }
 
     public void setModel(Model model) {
@@ -108,16 +108,37 @@ public class HomeScreenController {
 
         beginScanButton.setOnAction(event -> {
             startScanning = true;
-            scanControllerPropertyChangeSupport.firePropertyChange("startScanning", !startScanning, startScanning);
+            controllerPropertyChangeSupport.firePropertyChange("startScanning", !startScanning, startScanning);
             startScanning = false;
         });
 
         cancelScanButton.setOnAction(event -> {
             closeScanWindow = true;
-            scanControllerPropertyChangeSupport.firePropertyChange("closeScanWindow", !closeScanWindow, closeScanWindow);
+            controllerPropertyChangeSupport.firePropertyChange("closeScanWindow", !closeScanWindow, closeScanWindow);
             closeScanWindow = false;
         });
 
+        saveButton.setOnAction(event -> {
+            homeScreenControllerPropertyChangeSupport.firePropertyChange("saveDeviceSettings", false, true);
+        });
+
+        deviceTableView.setRowFactory(tv -> {
+            TableRow<RemoteDevice> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    selectedDevice = row.getItem();
+                    controllerPropertyChangeSupport.firePropertyChange("viewDeviceDetails", null, selectedDevice);
+                }
+            });
+            return row;
+        });
+
+        updateTable();
+
+        deviceTableView.setPlaceholder(new Label("No devices found on network."));
+    }
+
+    public void updateTable() {
         inputSettingsTableView.setEditable(true);
 
         deviceNameTextField.setDisable(true);
@@ -225,17 +246,29 @@ public class HomeScreenController {
             }
         };
         calibrateColumn.setCellFactory(cellFactory);
-
-        saveButton.setOnAction(event -> {
-            homeScreenControllerPropertyChangeSupport.firePropertyChange("saveDeviceSettings", false, true);
-        });
-
-        cancelButton.setOnAction(event -> {
-            homeScreenControllerPropertyChangeSupport.firePropertyChange("closeDetailsWindow", false, true);
-        });
     }
 
     public ProgressBar getProgressBar() {
         return this.scanProgress;
+    }
+
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Object source = propertyChangeEvent.getSource();
+        String property = propertyChangeEvent.getPropertyName();
+        if (property.equals("devices")) {
+            try {
+                model.updateDeviceData();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            this.deviceList = (DeviceList) source;
+        }
+
+        if(property.equals("remoteDeviceSaved")) {
+            if((boolean)propertyChangeEvent.getNewValue()) {
+                updateTable();
+            }
+        }
+
     }
 }
