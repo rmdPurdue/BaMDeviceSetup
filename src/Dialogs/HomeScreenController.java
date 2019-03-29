@@ -4,6 +4,7 @@ import MVC.Model;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -30,7 +31,7 @@ import static util.OSCCommandEnumerations.MINIMUM;
 /**
  * Created by pujamittal on 2/7/19.
  */
-public class HomeScreenController {
+public class HomeScreenController implements Initializable, PropertyChangeListener {
     private Model model;
     private RemoteDevice device = new RemoteDevice();
     private RemoteDevice selectedDevice;
@@ -76,8 +77,8 @@ public class HomeScreenController {
     public void setModel(Model model) {
         this.model = model;
         this.deviceList = model.getDeviceList();
-//        model.addPropertyChangeListener(this); // TODO: unsure why this works in Main but not here
-//        deviceList.addPropertyChangeListener(this);
+        model.addPropertyChangeListener(this);
+        deviceList.addPropertyChangeListener(this);
     }
 
     public void initialize(URL location, ResourceBundle resources) {
