@@ -29,17 +29,7 @@ import java.util.concurrent.Executors;
 public class main extends Application implements PropertyChangeListener {
 
     private Model model;
-//    private MainWindowController mainWindowController;
-//    private DeviceDialogController deviceDialogController;
-//    private ScanNetworkController scanNetworkController;
     private HomeScreenController homeScreenController; //TODO
-//    private CalibrationPromptController calibrationPromptController;
-//    private BackgroundTaskController backgroundTaskController = new BackgroundTaskController();
-
-//    private Stage scanDialogStage = new Stage();
-//    private Stage deviceDialogStage = new Stage();
-//    private Stage calibrationModalStage = new Stage();
-    private Stage homeStage = new Stage(); //TODO
 
     private ExecutorService executor;
     private DiscoveryQueryListener discoveryQueryListener;
@@ -61,54 +51,15 @@ public class main extends Application implements PropertyChangeListener {
 //        primaryStage.setScene(new Scene(root, 1000, 800));
 //        primaryStage.show();
 
-        /*
-           Set up device edit dialog mainWindowController and scene.
-         */
 
-//        FXMLLoader deviceDialogFXMLLoader = new FXMLLoader(getClass().getResource("/Dialogs/editDeviceDialog.fxml"));
-//        Parent deviceDialog = deviceDialogFXMLLoader.load();
-//        deviceDialogController = deviceDialogFXMLLoader.getController();
-//        Scene deviceDialogScene = new Scene(deviceDialog, 650, 600);
-//        deviceDialogStage.initModality(Modality.APPLICATION_MODAL);
-//        deviceDialogStage.setTitle("Edit Device Configuration");
-//        deviceDialogStage.setScene(deviceDialogScene);
-
-        /*
-           Set up scan network dialog mainWindowController and scene.
-         */
-
-//        FXMLLoader scanFXMLLoader = new FXMLLoader(getClass().getResource("/Dialogs/scanNetworkModal.fxml"));
-//        Parent modal = scanFXMLLoader.load();
-//        scanNetworkController = scanFXMLLoader.getController();
-//        Scene scanDialogScene = new Scene(modal, 600, 225);
-//        scanDialogStage.initModality(Modality.APPLICATION_MODAL);
-//        scanDialogStage.setTitle("Scan Network");
-//        scanDialogStage.setScene(scanDialogScene);
-
-        /*
-           Set up home screen mainWindowController and scene.
-         */
         //TODO: this whole section
         FXMLLoader homeFXMLLoader = new FXMLLoader(getClass().getResource("/Dialogs/homeScreen.fxml"));
         Parent homeModal = homeFXMLLoader.load();
         homeScreenController = homeFXMLLoader.getController();
         Scene homeScreenScene = new Scene(homeModal, 700, 500);
-        homeStage.initModality(Modality.APPLICATION_MODAL);
-        homeStage.setTitle("Home Screen");
-        homeStage.setScene(homeScreenScene);
-        homeStage.show();
-
-        /*
-            Set up calibration prompt controllers and scene.
-         */
-
-//        FXMLLoader calibrationFXMLLoader = new FXMLLoader(getClass().getResource("/Dialogs/calibrationPrompt.fxml"));
-//        Parent calibrationModal = calibrationFXMLLoader.load();
-//        calibrationPromptController = calibrationFXMLLoader.getController();
-//        Scene calibrationModalScene = new Scene(calibrationModal, 600, 225);
-//        calibrationModalStage.initModality(Modality.APPLICATION_MODAL);
-//        calibrationModalStage.setTitle("Calibrate Input");
-//        calibrationModalStage.setScene(calibrationModalScene);
+        primaryStage.setTitle("Home Screen");
+        primaryStage.setScene(homeScreenScene);
+        primaryStage.show();
 
         /*
            Create a new data model.
@@ -146,42 +97,18 @@ public class main extends Application implements PropertyChangeListener {
            Connect controllers to the model.
          */
 
-//        mainWindowController.setModel(model);
-//        scanNetworkController.setModel(model);
-        //deviceDialogController.setModel(model);
         homeScreenController.setModel(model); //TODO: fix this
-//        backgroundTaskController.setModel(model);
-//        backgroundTaskController.setControllers(scanNetworkController, deviceDialogController, calibrationPromptController);
-
-        /*
-            Connect controllers to their stages.
-         */
-
-        //deviceDialogController.setStage(deviceDialogStage);
-//        backgroundTaskController.setStages(scanDialogStage, deviceDialogStage, calibrationModalStage);
-        homeScreenController.setStage(homeStage);
 
         /*
             Add property change listeners for talk back from controllers and discovery query.
          */
-//        mainWindowController.addPropertyChangeListener(this);
-//        mainWindowController.addPropertyChangeListener(backgroundTaskController);
-//        scanNetworkController.addPropertyChangeListener(this);
-//        scanNetworkController.addPropertyChangeListener(backgroundTaskController);
+
         homeScreenController.addPropertyChangeListener(this); //TODO: fix this
-//        homeScreenController.addPropertyChangeListener(backgroundTaskController); //TODO: fix this
-        //deviceDiscoveryQuery.addPropertyChangeListener(this);
-//        deviceDialogController.addPropertyChangeListener(this);
-//        deviceDialogController.addPropertyChangeListener(backgroundTaskController);
-//        model.addPropertyChangeListener(backgroundTaskController);
 
         /*
             Bind scan network dialog box progress bar to query timeout progress.
          */
-        //scanNetworkController.getProgressBar().progressProperty().bind(deviceDiscoveryQuery.getTimeRemainingInSeconds().divide(10));
         homeScreenController.getProgressBar().progressProperty().bind(deviceDiscoveryQuery.getTimeRemainingInSeconds().divide(10)); //TODO: make sure this is ok
-        //calibrationPromptController.timer.bind(countdownTimer.getTimeRemainingInSeconds());
-
 
     }
 
@@ -227,7 +154,7 @@ public class main extends Application implements PropertyChangeListener {
         }
 
         // Stop listener for discovery responses
-        //discoveryQueryListener.stopDiscoveryListening();
+        discoveryQueryListener.stopDiscoveryListening();
 
         // update model with found devices
         model.setDevices(discoveryQueryListener.getDiscoveredDevices());

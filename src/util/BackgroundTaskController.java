@@ -59,9 +59,7 @@ public class BackgroundTaskController implements PropertyChangeListener {
         deviceDialogController.showStage();
     }
 
-    private void openSaveDetailsConfirmationWindow() {
-
-    }
+    private void openSaveDetailsConfirmationWindow() {}
 
     private void closeDeviceDetailsWindow() {
         deviceDialogController.closeStage();

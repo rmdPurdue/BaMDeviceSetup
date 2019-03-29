@@ -28,7 +28,6 @@ public class DeviceDiscoveryQuery implements Runnable {
         this.timeoutInSeconds = timeoutInSeconds;
     }
 
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         discoveryCompletePropertyChange.addPropertyChangeListener(listener);
     }

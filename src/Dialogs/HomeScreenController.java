@@ -1,13 +1,13 @@
 package Dialogs;
 
 import MVC.Model;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
 import util.AnalogInput;
@@ -31,7 +31,6 @@ import static util.OSCCommandEnumerations.MINIMUM;
  * Created by pujamittal on 2/7/19.
  */
 public class HomeScreenController {
-    private Stage stage;
     private Model model;
     private RemoteDevice device = new RemoteDevice();
     private RemoteDevice selectedDevice;
@@ -65,10 +64,8 @@ public class HomeScreenController {
     @FXML public Button cancelScanButton;
 
     @FXML private ProgressBar scanProgress;
-    private float progress;
-
+//    private float progress;
     private boolean startScanning;
-    private boolean closeScanWindow;
 
     private PropertyChangeSupport controllerPropertyChangeSupport = new PropertyChangeSupport(this);
 
@@ -76,69 +73,34 @@ public class HomeScreenController {
         controllerPropertyChangeSupport.addPropertyChangeListener(listener);
     }
 
-    public void setDevice(RemoteDevice device) {
-        this.device = device;
-        deviceNameTextField.setText(device.getDeviceName());
-        hubIPAddressTextField.setText(device.getAddressToSendTo().toString());
-        portNumberTextField.setText(String.valueOf(device.getPortToSendTo()));
-        inputSettingsTableView.getItems().addAll(device.getAnalogInputs());
-        inputSettingsTableView.refresh();
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
     public void setModel(Model model) {
         this.model = model;
+        this.deviceList = model.getDeviceList();
+//        model.addPropertyChangeListener(this); // TODO: unsure why this works in Main but not here
+//        deviceList.addPropertyChangeListener(this);
     }
-
-    public void updateDeviceDetailsDisplay() {
-        inputSettingsTableView.getItems().clear();
-        inputSettingsTableView.getItems().setAll(device.getAnalogInputs());
-        inputSettingsTableView.refresh();
-    }
-
-    private PropertyChangeSupport homeScreenControllerPropertyChangeSupport = new PropertyChangeSupport(this);
 
     public void initialize(URL location, ResourceBundle resources) {
         startScanning = false;
-        closeScanWindow = false;
-        progress = 0;
+//        progress = 0;
 
-        beginScanButton.setOnAction(event -> {
+        beginScanButton.setOnAction(event -> { // TODO: need to understand how property changes work
             startScanning = true;
-            controllerPropertyChangeSupport.firePropertyChange("startScanning", !startScanning, startScanning);
+            controllerPropertyChangeSupport.firePropertyChange("startScanning", !startScanning, startScanning); // triggered in main
             startScanning = false;
         });
 
+        //TODO: figure out what to do in this section
         cancelScanButton.setOnAction(event -> {
-            closeScanWindow = true;
-            controllerPropertyChangeSupport.firePropertyChange("closeScanWindow", !closeScanWindow, closeScanWindow);
-            closeScanWindow = false;
+            // currently does nothing because no window pops up
+            // needs to call stopDiscovery() in DeviceDiscoveryQuery
         });
 
-        saveButton.setOnAction(event -> {
-            homeScreenControllerPropertyChangeSupport.firePropertyChange("saveDeviceSettings", false, true);
-        });
-
-        deviceTableView.setRowFactory(tv -> {
-            TableRow<RemoteDevice> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    selectedDevice = row.getItem();
-                    controllerPropertyChangeSupport.firePropertyChange("viewDeviceDetails", null, selectedDevice);
-                }
-            });
-            return row;
-        });
-
-        updateTable();
-
-        deviceTableView.setPlaceholder(new Label("No devices found on network."));
-    }
-
-    public void updateTable() {
+        // TODO: check this lmao
+        /**
+         * THIS SECTION MIGHT NEED TO BE ANOTHER METHOD ENTIRELY
+         * p sure this just sets everything up tho, the cell factory might need to be called again when a new device is selected
+         */
         inputSettingsTableView.setEditable(true);
 
         deviceNameTextField.setDisable(true);
@@ -192,6 +154,10 @@ public class HomeScreenController {
             device.setPortToSendTo(Integer.parseInt(portNumberTextField.getText()));
         });
 
+        saveButton.setOnAction(event -> {
+            controllerPropertyChangeSupport.firePropertyChange("saveDeviceSettings", false, true);
+        });
+
         inputNumberColumn.setCellValueFactory(new PropertyValueFactory<>("inputNumber"));
         minValueColumn.setCellValueFactory(new PropertyValueFactory<>("minValue"));
         maxValueColumn.setCellValueFactory(new PropertyValueFactory<>("maxValue"));
@@ -215,7 +181,7 @@ public class HomeScreenController {
                     {
                         minBtn.setOnAction((ActionEvent event) -> {
                             AnalogInput data = getTableView().getItems().get(getIndex());
-                            homeScreenControllerPropertyChangeSupport.firePropertyChange("calibrate", null, new DeviceToCalibrate(device, data.getInputNumber(), MINIMUM));
+                            controllerPropertyChangeSupport.firePropertyChange("calibrate", null, new DeviceToCalibrate(device, data.getInputNumber(), MINIMUM));
                             // ADD AN ALERT BOX WITH CALIBRATION INSTRUCTIONS
                         });
                     }
@@ -225,7 +191,7 @@ public class HomeScreenController {
                     {
                         maxBtn.setOnAction((ActionEvent event) -> {
                             AnalogInput data = getTableView().getItems().get(getIndex());
-                            homeScreenControllerPropertyChangeSupport.firePropertyChange("calibrate",null, new DeviceToCalibrate(device, data.getInputNumber(), MAXIMUM));
+                            controllerPropertyChangeSupport.firePropertyChange("calibrate",null, new DeviceToCalibrate(device, data.getInputNumber(), MAXIMUM));
                             // ADD AN ALERT BOX WITH CALIBRATION INSTRUCTIONS
                         });
                     }
@@ -246,6 +212,52 @@ public class HomeScreenController {
             }
         };
         calibrateColumn.setCellFactory(cellFactory);
+
+        /**
+         * end large section
+         */
+
+        deviceNameColumn.setCellValueFactory(new PropertyValueFactory<>("deviceName"));
+        deviceTableView.setRowFactory(tv -> {
+            TableRow<RemoteDevice> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    selectedDevice = row.getItem();
+                    setDevice(selectedDevice);
+                }
+            });
+            return row;
+        });
+
+        deviceTableView.setPlaceholder(new Label("No devices found on network."));
+    }
+
+    public void setDevice(RemoteDevice device) {
+        this.device = device;
+        deviceNameTextField.setText(device.getDeviceName());
+        hubIPAddressTextField.setText(device.getAddressToSendTo().toString());
+        portNumberTextField.setText(String.valueOf(device.getPortToSendTo()));
+        inputSettingsTableView.getItems().addAll(device.getAnalogInputs());
+        inputSettingsTableView.refresh();
+    }
+
+    public void updateDeviceDetailsDisplay() {
+        deviceTableView.getItems().clear();
+//        deviceTableView.getItems().setAll(device.getAnalogInputs()); //TODO: why is this not working
+        deviceTableView.refresh();
+    }
+
+    public void updateTable() {
+        /**
+         *  If the Device List is not empty, clear the table and repopulate it with items
+         *  from the Device List.
+         */
+
+        if (!deviceList.isEmpty()) {
+            deviceTableView.getItems().clear();
+            deviceTableView.getItems().addAll(FXCollections.observableList(deviceList.getDevices()));
+            deviceTableView.refresh();
+        }
     }
 
     public ProgressBar getProgressBar() {
